@@ -13,8 +13,8 @@ Follow these steps to set up the project on your local machine:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/VirtualInteriorDesignTool.git
-   cd VirtualInteriorDesignTool
+   git clone https://github.com/pk1498/DesignGenie.git
+   cd DesignGenie
 
 2. Install the required Python packages:
 
