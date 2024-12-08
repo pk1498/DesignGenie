@@ -57,3 +57,18 @@ categories = {
 for category, url in categories.items():
     print(f"Scraping {category}...")
     scrape_category(url, category)
+
+
+
+
+
+# ------------- Run below code for getting annotated dataset from roboflow --------------------
+
+# !pip install roboflow
+
+# from roboflow import Roboflow
+# rf = Roboflow(api_key="nJ8wpptmMI7nb0VkwOBX")
+# project = rf.workspace("project-1iawg").project("designgenie")
+# version = project.version(1)
+# dataset = version.download("yolov5")
+                
