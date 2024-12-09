@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
 # Directory to save images
-SAVE_DIR = "ikea_images"
+SAVE_DIR = "ikea_images_new"
 
 # Function to download an image
 def download_image(url, folder, filename):
@@ -41,16 +41,18 @@ def scrape_category(url, folder):
 
 # IKEA URLs for categories (replace these with actual IKEA category URLs)
 categories = {
-    # "Sofasets": "https://www.ikea.com/us/en/cat/sofas-fu003/",
-    # "Beds": "https://www.ikea.com/us/en/cat/beds-bm003/",
-    # "Chairs": "https://www.ikea.com/us/en/cat/chairs-fu002/",
-    # "Shelves": "https://www.ikea.com/us/en/cat/bookcases-shelving-units-st002/",
-    # "TableDesk": "https://www.ikea.com/us/en/cat/tables-desks-fu004/",
-    # "Wardrobes": "https://www.ikea.com/us/en/cat/armoires-wardrobes-19053/",
-    # "Dining Sets": "https://www.ikea.com/us/en/cat/dining-sets-19145/",
-    # "Vases": "https://www.ikea.com/us/en/cat/vases-10776/",
-    # "Frames": "https://www.ikea.com/us/en/cat/wall-art-10788/",
-    # "FloorLamp": "https://www.ikea.com/us/en/cat/floor-lamps-10731/",
+    # "Sofa": "https://www.ikea.com/us/en/cat/sofas-fu003/",
+    # "Bed": "https://www.ikea.com/us/en/cat/beds-bm003/",
+    # "Chair": "https://www.ikea.com/us/en/cat/chairs-fu002/",
+    # "Desk": "https://www.ikea.com/us/en/cat/desks-for-home-20651/",
+    # "Table": "https://www.ikea.com/us/en/cat/accent-tables-10705/?page=2",
+    # "Wardrobe": "https://www.ikea.com/us/en/cat/armoires-wardrobes-19053/",
+    # "Dining Set": "https://www.ikea.com/us/en/cat/dining-sets-19145/",
+    # "Vase": "https://www.ikea.com/us/en/cat/vases-10776/",
+    # "Photo Frame": "https://www.ikea.com/us/en/cat/wall-art-10788/",
+    # "Floor lamp": "https://www.ikea.com/us/en/cat/floor-lamps-10731/",
+    # "Kitchen shelf": "https://www.ikea.com/us/en/cat/kitchen-cabinets-700292/?page=2",
+    # "Bathroom shelf": "https://www.ikea.com/us/en/cat/bathroom-vanities-20719/"
 }
 
 # Scrape each category
