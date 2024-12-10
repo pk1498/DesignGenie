@@ -49,9 +49,10 @@ def draw_boxes (image, prediction, fig_size=(10, 10)):
     boxes = prediction [0]['boxes'].cpu().numpy() # Get predicted bounding boxes 
     labels = prediction [0]['labels'].cpu().numpy() # Get predicted labels 
     scores = prediction[0]['scores'].cpu().numpy() #Get predicted scores 
+    predicted_objects = []
     
     #Set a threshold for showing boxes (e.g., score > 0.5) 
-    threshold = 0.3
+    threshold = 0.4
     
     #Set up the figure size to control the image size 
     plt.figure(figsize=fig_size) # Adjust the figure size here 
@@ -60,13 +61,15 @@ def draw_boxes (image, prediction, fig_size=(10, 10)):
         if score > threshold: 
             x_min, y_min, x_max, y_max = box 
             class_name = get_class_name(label) # Get the class name 
+            predicted_objects.append(class_name)
             plt.imshow(image) # Display the image 
             plt.gca().add_patch(plt.Rectangle((x_min, y_min), x_max - x_min, y_max - y_min, linewidth=2, edgecolor='r', facecolor='none')) 
             plt.text(x_min, y_min, f"{class_name} ({score:.2f})", color='r') 
     plt.axis('off') #Turn off axis 
     plt.show() 
+    return predicted_objects
 
-def get_faster_rcnn_model():
+def get_faster_rcnn_model(model_path):
     # number of decor items is equal to number of classes for object detection
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     num_decor_items = 13
@@ -75,7 +78,7 @@ def get_faster_rcnn_model():
     in_features = model.roi_heads.box_predictor.cls_score.in_features
     model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_decor_items)
 
-    model.load_state_dict(torch.load("../FasterRCNN/fasterrcnn_resnet50_epoch_(epoch + 1).pth"))
+    model.load_state_dict(torch.load(model_path))
     model.to(device)
     model.eval()
     return model
