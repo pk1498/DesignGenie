@@ -21,7 +21,7 @@ def accuracy(outputs, labels):
     acc = torch.sum(preds == labels).item() / len(preds)
     return acc
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu")
 
 class ConvClassifier(nn.Module):
     def __init__(self, model_name='resnet18', dataset=None):
