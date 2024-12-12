@@ -3,11 +3,11 @@ import streamlit as st
 from PIL import Image
 import torch
 from torchvision import transforms
-from scene_classification.FinalModel import ConvClassifier
+from FinalModel import ConvClassifier
 import os
 import zipfile
 import urllib.request
-from utils.common_functions import get_faster_rcnn_model, prepare_image, draw_boxes_ui, get_file_count
+from CommonFunctions import get_faster_rcnn_model, prepare_image, draw_boxes_ui, get_file_count
 
 # GitHub Release URL for the zipped model files
 MODEL_ZIP_URL = "https://github.com/pk1498/final-models/releases/download/FinalModels/FinalModels.zip"
