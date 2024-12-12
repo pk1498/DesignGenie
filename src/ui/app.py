@@ -149,29 +149,28 @@ if uploaded_file:
         st.write(f"Here are images for the **{selected_recommendations}:**")
 
         if selected_recommendations:
-            with st.spinner("Generating Images..."):
-                for decor_item in selected_recommendations:
-                    st.subheader(f"Images for: {decor_item}")
-                    decor_item_dir = os.path.join(os.path.dirname(__file__), base_image_dir, decor_item)
-                    if os.path.exists(decor_item_dir):
-                        image_files = [f for f in os.listdir(decor_item_dir) if f.endswith(('.jpg', '.jpeg', '.png'))]
-                        if len(image_files) >= 5:
-                            selected_images = random.sample(image_files, 5)
-                        else:
-                            selected_images = image_files
-
-                        cols = st.columns(5)
-                        # num_images_decor = get_file_count(decor_item)
-                        for i, img_file in enumerate(selected_images):
-                            with cols[i]:
-                                try:
-                                    img_path = os.path.join(decor_item_dir, img_file)
-                                    img = Image.open(img_path)
-                                    st.image(img, caption=f"{decor_item} Image {i + 1}")
-                                except Exception as e:
-                                    st.error(f"Could not load image {i + 1} for {decor_item}: {e}")
+            for decor_item in selected_recommendations:
+                st.subheader(f"Images for: {decor_item}")
+                decor_item_dir = os.path.join(os.path.dirname(__file__), base_image_dir, decor_item)
+                if os.path.exists(decor_item_dir):
+                    image_files = [f for f in os.listdir(decor_item_dir) if f.endswith(('.jpg', '.jpeg', '.png'))]
+                    if len(image_files) >= 5:
+                        selected_images = random.sample(image_files, 5)
                     else:
-                        st.warning(f"No images found for '{decor_item}' in the directory: {decor_item_dir}")
+                        selected_images = image_files
+
+                    cols = st.columns(5)
+                    # num_images_decor = get_file_count(decor_item)
+                    for i, img_file in enumerate(selected_images):
+                        with cols[i]:
+                            try:
+                                img_path = os.path.join(decor_item_dir, img_file)
+                                img = Image.open(img_path)
+                                st.image(img, caption=f"{decor_item} Image {i + 1}")
+                            except Exception as e:
+                                st.error(f"Could not load image {i + 1} for {decor_item}: {e}")
+                else:
+                    st.warning(f"No images found for '{decor_item}' in the directory: {decor_item_dir}")
 
         else:
             st.warning("No recommendations selected!")
