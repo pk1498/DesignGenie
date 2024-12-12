@@ -8,3 +8,4 @@ FasterRCNN/fasterrcnn_resnet50_epoch4.pth
 FasterRCNN/fasterrcnn_resnet50_epoch5.pth
 FasterRCNN/fasterrcnn_resnet50_epoch6.pth
 notebooks/*.pth
+**/*.pth

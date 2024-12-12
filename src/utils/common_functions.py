@@ -1,4 +1,6 @@
 import sys
+from pathlib import Path
+
 sys.path.append("../src")
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -8,7 +10,7 @@ import torch
 import torchvision
 from torchvision.datasets import ImageFolder
 import torchvision.transforms as transforms
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from torchvision.transforms import functional as F
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
@@ -69,6 +71,32 @@ def draw_boxes (image, prediction, fig_size=(10, 10)):
     plt.show() 
     return predicted_objects
 
+
+def draw_boxes_ui(image, prediction, fig_size=(10, 10)):
+    boxes = prediction[0]['boxes'].cpu().numpy()
+    labels = prediction[0]['labels'].cpu().numpy()
+    scores = prediction[0]['scores'].cpu().numpy()
+    predicted_objects = []
+
+    # Set a threshold for showing boxes (e.g., score > 0.5)
+    threshold = 0.4
+
+    image_pil = Image.fromarray(np.array(image).astype(np.uint8)).convert("RGB")
+    draw = ImageDraw.Draw(image_pil)
+
+    for box, label, score in zip(boxes, labels, scores):
+        if score > threshold:
+            x_min, y_min, x_max, y_max = box
+            class_name = get_class_name(label)  # Get the class name
+            predicted_objects.append(class_name)
+
+            draw.rectangle([(x_min, y_min), (x_max, y_max)], outline="red", width=3)
+            text = f"{class_name} ({score:.2f})"
+            draw.text((x_min, y_min - 10), text, fill="red")
+
+    return predicted_objects, image_pil
+
+
 def get_faster_rcnn_model(model_path):
     # number of decor items is equal to number of classes for object detection
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -82,4 +110,12 @@ def get_faster_rcnn_model(model_path):
     model.to(device)
     model.eval()
     return model
+
+
+def get_file_count(decor_item):
+    folder_path = Path(f"../../scraper/ikea_images_new/{decor_item}")
+
+    # Count the number of files
+    num_files = sum(1 for f in folder_path.iterdir() if f.is_file())
+    return num_files
 
