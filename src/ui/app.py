@@ -5,11 +5,37 @@ import torch
 from torchvision import transforms
 from src.scene_classification.FinalModel import ConvClassifier
 import os
-
+import zipfile
+import urllib.request
 from src.utils.common_functions import get_faster_rcnn_model, prepare_image, draw_boxes_ui, get_file_count
 
-sc_model_path = os.path.join(os.path.dirname(__file__), "vit_b_16.pth")
-od_model_path = os.path.join(os.path.dirname(__file__), "fasterrcnn_resnet50_epoch4.pth")
+# GitHub Release URL for the zipped model files
+MODEL_ZIP_URL = "https://github.com/pk1498/final-models/releases/download/FinalModels/FinalModels.zip"
+
+
+def download_and_extract_once():
+    persistent_cache_dir = os.path.expanduser("~/.streamlit_model_cache")
+    os.makedirs(persistent_cache_dir, exist_ok=True)
+
+    zip_path = os.path.join(persistent_cache_dir, "models.zip")
+    extract_dir = os.path.join(persistent_cache_dir, "models")
+
+    if not os.path.exists(extract_dir):
+        st.info("Downloading model files...")
+        urllib.request.urlretrieve(MODEL_ZIP_URL, zip_path)
+        st.info("Extracting model files...")
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(extract_dir)
+
+    return extract_dir
+
+
+with st.spinner("Loading Models, this should take a while..."):
+    cache_dir = download_and_extract_once()
+
+# Paths to individual model files
+sc_model_path = os.path.join(cache_dir, "FinalModels/vit_b_16.pth")
+od_model_path = os.path.join(cache_dir, "FinalModels/fasterrcnn_resnet50_epoch4.pth")
 
 # Title and description
 st.title("Design Genie - Virtual Interior Design Tool")
