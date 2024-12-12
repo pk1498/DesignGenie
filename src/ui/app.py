@@ -21,11 +21,13 @@ def download_and_extract_once():
     extract_dir = os.path.join(persistent_cache_dir, "models")
 
     if not os.path.exists(extract_dir):
-        st.info("Downloading model files...")
+        # st.info("Downloading model files...")
         urllib.request.urlretrieve(MODEL_ZIP_URL, zip_path)
-        st.info("Extracting model files...")
+        # st.info("Extracting model files...")
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall(extract_dir)
+    else:
+        st.info("Models already cached locally.")
 
     return extract_dir
 
