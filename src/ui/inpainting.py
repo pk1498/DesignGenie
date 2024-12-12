@@ -2,41 +2,28 @@ from transformers import DPTForDepthEstimation, DPTImageProcessor
 from PIL import Image
 import cv2
 import numpy as np
-from lama import LamaPredictor
+import torch
 
 
-depth_model = DPTForDepthEstimation.from_pretrained("Intel/dpt-large")
-depth_processor = DPTImageProcessor.from_pretrained("Intel/dpt-large")
+def preprocess_image(image_path, mask_path, target_size=(512, 512)):
+    image = Image.open(image_path).convert("RGB")
+    mask = Image.open(mask_path).convert("L")
+
+    image = image.resize(target_size)
+    mask = mask.resize(target_size)
+
+    image = np.array(image) / 255.0
+    mask = np.array(mask) / 255.0
+
+    image = torch.from_numpy(image).permute(2, 0, 1).float() / 255.0
+    mask = torch.from_numpy(mask).unsqueeze(0).float() / 255.0
+
+    return image.unsqueeze(0), mask.unsqueeze(0)
 
 
-def estimate_depth(image_path):
-    image = Image.open(image_path)
-    inputs = depth_processor(images=image, return_tensors="pt")
-    depth_map = depth_model(**inputs).logits.squeeze().detach().numpy()
-    return depth_map
-
-# LaMa model setup
-lama = LamaPredictor(model_dir='path_to_lama_model')
-
-def inpaint_with_lama(image, mask):
-    inpainted_image = lama.predict(image, mask)
-    return inpainted_image
-
-
-
-from rembg import remove
-import streamlit as st
-
-@st.cache_resource
-def load_bg_model():
-    from rembg.bg import new_session
-    return new_session(model_name="u2netp")
-
-bg_model = load_bg_model()
-
-def load_lama_model(ckpt_path):
-    model = torch.load(ckpt_path, map_location=torch.device('cpu'))
-    model.eval()  # Set the model to evaluation mode
-    return model
-
-lama_model = load_lama_model("path_to_your_model.ckpt")
+def inpaint_image(model, image, mask):
+    # Concatenate image and mask for input
+    input_data = torch.cat((image, mask), dim=1)  # Assuming model expects (N, 4, H, W)
+    with torch.no_grad():
+        inpainted = model(input_data)
+    return inpainted.squeeze().permute(1, 2, 0).numpy()  # Convert back to HWC

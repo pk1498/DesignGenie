@@ -1,18 +1,22 @@
 import random
-import streamlit as st
-from PIL import Image
-import torch
-from torchvision import transforms
-from FinalModel import ConvClassifier
 import os
 import zipfile
 import urllib.request
-from CommonFunctions import get_faster_rcnn_model, prepare_image, draw_boxes_ui, get_file_count
+from PIL import Image
+import torch
+from torchvision import transforms
+import streamlit as st
+from FinalModel import ConvClassifier
+from CommonFunctions import get_faster_rcnn_model, prepare_image, draw_boxes_ui
+import warnings
 
-# GitHub Release URL for the zipped model files
+
+warnings.filterwarnings("ignore")
+
 MODEL_ZIP_URL = "https://github.com/pk1498/final-models/releases/download/FinalModels/FinalModels.zip"
 
-
+# Cache the download and extraction process to avoid re-downloading and extracting the model every time
+@st.cache_resource
 def download_and_extract_once():
     persistent_cache_dir = os.path.expanduser("~/.streamlit_model_cache")
     os.makedirs(persistent_cache_dir, exist_ok=True)
@@ -21,13 +25,9 @@ def download_and_extract_once():
     extract_dir = os.path.join(persistent_cache_dir, "models")
 
     if not os.path.exists(extract_dir):
-        # st.info("Downloading model files...")
         urllib.request.urlretrieve(MODEL_ZIP_URL, zip_path)
-        # st.info("Extracting model files...")
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall(extract_dir)
-    else:
-        st.info("Models already cached locally.")
 
     return extract_dir
 
@@ -38,6 +38,7 @@ with st.spinner("Loading Models, this should take a while..."):
 # Paths to individual model files
 sc_model_path = os.path.join(cache_dir, "FinalModels/vit_b_16.pth")
 od_model_path = os.path.join(cache_dir, "FinalModels/fasterrcnn_resnet50_epoch4.pth")
+lama_model_path = os.path.join(cache_dir, "FinalModels/best.ckpt")
 
 # Title and description
 st.title("Design Genie - Virtual Interior Design Tool")
@@ -85,8 +86,6 @@ if uploaded_file:
                     'gameroom', 'kitchen', 'livingroom', 'locker_room', 'meeting_room']
     room_type = class_labels[predicted_class_idx]
 
-    # room_type = "Bedroom"  # Example prediction
-    # confidence_score = 0.9123  # Example confidence score
     st.success(f"This is a **{room_type}**! [Confidence score – {confidence_score:.4f}]")
 
     # Simulating Object Detection (replace this with actual detection model)
@@ -113,13 +112,11 @@ if uploaded_file:
     total_required_objects = room_decor[room_type]
     actual_required_objects = list(set(total_required_objects) - set(predicted_objects))
 
-    # detected_objects = ["Bed", "Cupboard", "Side Table"]  # Example objects
     detected_objects = predicted_objects
     st.info(f"The current image has these objects – {', '.join(detected_objects)}")
 
     # Recommendations
     st.markdown("### Recommendations")
-    # recommendations = ["Dressing Table", "Lamp", "Rug", "Bedside Runner"]  # Example recommendations
     recommendations = actual_required_objects
 
     st.write("Select the items you would like to add to your room:")
@@ -127,25 +124,14 @@ if uploaded_file:
         "Available Recommendations:",
         options=recommendations,
         default=[],
-        help="Choose the items you want to add to your room."
+        help="Choose the items you want to add to your room.",
+        on_change=None,
     )
-
-    if selected_recommendations:
-        st.success(f"You selected: {', '.join(selected_recommendations)}")
-    else:
-        st.warning("No items selected yet!")
-
-    # # Theme Selection
-    # st.markdown("### Choose a Theme for Further Recommendations")
-    # themes = ["Modern", "Minimalist", "Bohemian", "Vintage"]
-    # selected_theme = st.radio("Select a Theme:", themes)
 
     # Generate button
     if st.button("Generate Recommendations"):
         base_image_dir = "../../scraper/ikea_images_new"
         st.markdown("### Generated Images")
-        # st.write(f"Here are 3 placeholder images generated for the **{selected_theme}** theme with your selections: "
-        #          f"{', '.join(selected_recommendations) if selected_recommendations else 'No items selected.'}")
         st.write(f"Here are images for the **{selected_recommendations}:**")
 
         if selected_recommendations:
@@ -160,7 +146,6 @@ if uploaded_file:
                         selected_images = image_files
 
                     cols = st.columns(5)
-                    # num_images_decor = get_file_count(decor_item)
                     for i, img_file in enumerate(selected_images):
                         with cols[i]:
                             try:
@@ -171,7 +156,5 @@ if uploaded_file:
                                 st.error(f"Could not load image {i + 1} for {decor_item}: {e}")
                 else:
                     st.warning(f"No images found for '{decor_item}' in the directory: {decor_item_dir}")
-
         else:
             st.warning("No recommendations selected!")
-
